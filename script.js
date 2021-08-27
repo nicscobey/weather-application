@@ -1,20 +1,13 @@
-console.log("HI NICO");
-
 let $city = $('input[type="text"]');
 let $weatherData = $('#weather-data');
 let $latitude, $longitude;
-// let h1 = $('h1');
+let days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
 const handleGetData = (lat, long) => {
-    // event.preventDefault();
-
     $.ajax({
-        // url: `https://api.openweathermap.org/data/2.5/forecast?q=${$city.val()}&appid=76b2efa7ef7334573afeea37163369e3&units=imperial`
         url: `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${long}&appid=76b2efa7ef7334573afeea37163369e3&units=imperial`
     }).then(
         function (data) {
-            console.log(data);
-            console.log(Math.round(data.daily[0].temp.min));
             loadDataToScreen(data);
         },
         function (error) {
@@ -26,14 +19,17 @@ const handleGetData = (lat, long) => {
 
 const getLatLong = (event) => {
     event.preventDefault();
+
+    $('#weather-data').html("");
+
     $.ajax({
         url: `https://api.openweathermap.org/data/2.5/weather?q=${$city.val()}&appid=76b2efa7ef7334573afeea37163369e3&units=imperial`
     }).then(
         function (data) {
-            console.log(data);
             let lat = data.coord.lat;
             let long = data.coord.lon;
-            console.log(lat, long)
+            $('h2').text(data.name)
+
             handleGetData(lat, long);
         },
         function (error) {
@@ -42,33 +38,24 @@ const getLatLong = (event) => {
     )
 }
 
-// $('form').on('submit', handleGetData);
-
 $('form').on('submit', getLatLong);
 
 const loadDataToScreen = (data) => {
-    console.log(data.list.length);
-
-    $('h2').text(data.city.name)
-    for (let i = 0; i < data.list.length; i++) {
-        console.log(i);
-
-        const unixTime = data.list[i].dt;
+    for (let i = 0; i < data.daily.length; i++) {
+        const unixTime = data.daily[i].dt;
         const date = new Date(unixTime * 1000);
-        // console.log(date);
-        console.log(date.getDay());
-        // console.log(date.toLocaleDateString("en-US"));
 
-
+        const day = days[date.getDay()];
         let $newCard = `
             <div class="weather-card">
-                <h3>${data.list[i].dt}</h3>
-                <h3>${date.toLocaleDateString("en-US")}</h3>
-                <p class="temp-max">${Math.round(data.list[i].main.temp_max)}</p>
-                <p class="temp-min">${Math.round(data.list[i].main.temp_min)}</p>
-                <p class="weather">${data.list[i].weather[0].main}</p>
+                <h3>${day}</h3>
+                <img src="https://openweathermap.org/img/w/${data.daily[i].weather[0].icon}.png">
+                <p class="weather">${data.daily[i].weather[0].description}</p>
+                <div class="temps">
+                    <p class="temp-max">${Math.round(data.daily[i].temp.max)}</p>
+                    <p class="temp-min">${Math.round(data.daily[i].temp.min)}</p>
+                </div>
             </div>`;
-
 
         $weatherData.append($newCard);
     }
