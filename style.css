@@ -4,7 +4,7 @@
 }
 
 body {
-    background-image: url(/Background.svg);
+    background-image: url(/weather-application/Background.svg);
 }
 
 .weather-card {
